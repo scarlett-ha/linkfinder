@@ -14,7 +14,7 @@ r = requests.get(base)
 
 soup = BeautifulSoup(r.content, 'lxml')
 
-urls = set()
+urls = []
 
 for link in soup.find_all('a'):
     # turn any relative urls into absolute urls
@@ -22,7 +22,31 @@ for link in soup.find_all('a'):
     host = urlparse(url).netloc
 
     if host != base_host:
-        urls.add(url)
+        urls.append(url)
 
-for url in sorted(urls):
-    print(url)
+def unique(items):
+    """Return a list of the unique items and how many times each occurs"""
+    prev = None
+    count = None
+    uniques = []
+
+    for item in sorted(items):
+        if prev == None:
+            count = 1
+
+        elif prev == item:
+            count = count + 1
+
+        else:
+            uniques.append((prev, count))
+            count = 1
+        
+        prev = item
+
+    if prev != None:
+        uniques.append((prev, count))
+
+    return uniques
+
+for (url, count) in unique(urls):
+    print(f'{url}: {count}')
