@@ -3,8 +3,12 @@ import argparse
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 
-parser = argparse.ArgumentParser(description='find unique URLs on a given web page')
+parser = argparse.ArgumentParser(description='find unique URLs on a given web page. Displays only external links by default')
 parser.add_argument('baseurl', help='the url of the web page')
+
+parser.add_argument('--show-internal', action='store_true', help="show internal links")
+parser.add_argument('--only-internal', action='store_true', help="show only internal links")
+
 args = parser.parse_args()
 
 base = args.baseurl
@@ -21,7 +25,12 @@ for link in soup.find_all('a'):
     url = urljoin(base, link.get('href'))
     host = urlparse(url).netloc
 
-    if host != base_host:
+    is_internal = host == base_host
+
+    show_internal = args.only_internal or args.show_internal
+    show_external = not args.only_internal
+         
+    if (show_internal and is_internal) or (show_external and not is_internal):
         urls.append(url)
 
 def unique(items):
